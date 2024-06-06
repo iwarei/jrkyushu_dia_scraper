@@ -1,0 +1,3 @@
+[submodule "dockerized-mysql"]
+	path = dockerized-mysql
+	url = https://github.com/iwarei/dockerized-mysql
