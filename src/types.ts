@@ -6,5 +6,5 @@ export type LineInfo = {
 export type StationInfo = {
   stationName: string;
   stationCode: string;
-
+  stationNameKana: string;
 }
