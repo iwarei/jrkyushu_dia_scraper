@@ -1,10 +1,16 @@
 export type LineInfo = {
-  lineName: string;
-  lineCode: string | undefined;
-}
+  id?: number;
+  name: string;
+  code: string | undefined;
+  created_at?: Date;
+  updated_at?: Date;
+};
 
 export type StationInfo = {
+  id?: number;
   stationName: string;
   stationCode: string;
   stationNameKana: string;
-}
+  created_at?: Date;
+  updated_at?: Date;
+};

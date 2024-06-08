@@ -1,7 +1,7 @@
-import { getLineCode } from "./Service/lineService";
+import { getLineInfo } from './Service/lineService';
 
-const index = async(): Promise<void> =>  {
-  const lines = await getLineCode();
-}
+const index = async (): Promise<void> => {
+  const lines = await getLineInfo();
+};
 
 index();

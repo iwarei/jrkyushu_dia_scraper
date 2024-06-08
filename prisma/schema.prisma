@@ -14,30 +14,38 @@ datasource db {
 }
 
 model Line {
-  id        Int         @id @default(autoincrement())
-  name      String
-  code      String      @unique
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  stations  LineStation[]
+  id          Int         @id @default(autoincrement())
+  name        String
+  code        String      @unique
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+  stations    LineStation[]
+
+  @@map("lines")
 }
 
 model Station {
-  id        Int       @id @default(autoincrement())
-  name      String
-  nameKane  String
-  code      String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  lines     LineStation[]
+  id          Int       @id @default(autoincrement())
+  name        String
+  name_kana   String
+  code        String    @unique
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  lines       LineStation[]
+
+  @@map("stations")
 }
 
 model LineStation {
-  lineId    Int
-  stationId Int
-  line      Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
-  station   Station  @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  id          Int      @id @default(autoincrement())
+  line_id     Int
+  station_id  Int
+  line        Line     @relation(fields: [line_id], references: [id], onDelete: Cascade)
+  station     Station  @relation(fields: [station_id], references: [id], onDelete: Cascade)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
-  @@id([lineId, stationId])
+  @@unique([line_id, station_id])
+  @@map("line_station_relation")
 }
 
