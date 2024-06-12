@@ -35,7 +35,6 @@ export const scrapeLineInfo = async (): Promise<LineInfo[]> => {
         const lineLink = $(e).attr('href') ?? '';
         const lineCode = lineLink?.split('/').pop()?.replace('.html', '');
 
-        console.log(lineLink);
         lines.push({ name: lineName, code: lineCode });
       }
     });
@@ -48,7 +47,7 @@ export const scrapeLineInfo = async (): Promise<LineInfo[]> => {
 };
 
 /**
- * 時刻表情報を登録する
+ * 路線情報を登録する
  * @param {LineInfo[]} 線名情報の配列
  */
 export const registLineInfo = async (
@@ -63,6 +62,7 @@ export const registLineInfo = async (
         code: line.code,
       },
     });
+
     if (exist) {
       registered.push(exist);
       continue;
