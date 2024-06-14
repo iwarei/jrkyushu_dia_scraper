@@ -22,3 +22,30 @@ export type LineStationRelation = {
   created_at?: Date;
   updated_at?: Date;
 };
+
+export type TrainInfo = {
+  id?: number;
+  shinkansen_flg: boolean;
+  kind: string;
+  name?: string;
+  code: string;
+  number: string;
+  facility?: string;
+  drive_day: string;
+  remarks?: string;
+  created_at?: Date;
+  updated_at?: Date;
+};
+
+export type StopStationInfo = {
+  id?: number;
+  train_id: number;
+  station_id: number;
+  arrive_time?: string;
+  departure_time?: string;
+  passing_flag: boolean;
+  platform?: string;
+  order: number;
+  created_at?: Date;
+  updated_at?: Date;
+};

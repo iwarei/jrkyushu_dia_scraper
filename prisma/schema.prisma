@@ -49,3 +49,34 @@ model LineStation {
   @@map("line_station_relation")
 }
 
+model TrainInfo {
+  id              Int           @id @default(autoincrement())
+  shinkansen_flg  Boolean
+  kind            String?
+  name            String?
+  code            String
+  number          String
+  facility        String?
+  drive_day       String
+  remarks         String?
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+
+  @@map("train_infos")
+}
+
+model TrainStopStaton {
+  id              Int       @id @default(autoincrement())
+  train_id        Int
+  station_id      Int
+  arrive_time     String?
+  departure_time  String?
+  passing_flag    Boolean
+  platform        String?
+  order           Int
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+
+  @@map("train_stop_stations")
+}
+
