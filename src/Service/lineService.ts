@@ -63,7 +63,7 @@ export const registLineInfo = async (
       },
     });
 
-    if (exist) {
+    if (exist && !registered.find((e) => e.id === exist.id)) {
       registered.push(exist);
       continue;
     }

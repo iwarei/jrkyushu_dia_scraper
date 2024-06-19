@@ -91,7 +91,7 @@ export const registStationInfo = async (
         code: station.code,
       },
     });
-    if (exist) {
+    if (exist && !registered.find((e) => e.id === exist.id)) {
       registered.push(exist);
       continue;
     }
@@ -125,7 +125,7 @@ const registLineStationRelation = async (
           },
         },
       });
-      if (exist) {
+      if (exist && !registered.find((e) => e.id === exist.id)) {
         registered.push(exist);
         continue;
       }
