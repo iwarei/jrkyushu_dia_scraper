@@ -26,40 +26,38 @@ type TrainDetail = {
  */
 export const getTrainInfo = async (stations: StationInfo[]) => {
   for (const station of stations) {
-    await scrapeTrainInfo(station);
+    await getTrainCode(station);
     // await registTrainInfo(await scrapeTrainInfo(station));
   }
 };
 
 /**
- * 駅ページから列車情報を取得する
- * @return {Promise<StationInfo[]>} 線名情報の配列
+ * 駅ページから列車コードを取得する
+ * @param  {StationInfo[]} 駅情報の配列
+ * @return {Promise<string[]>} 列車コードの配列
  */
-export const scrapeTrainInfo = async (
-  station: StationInfo,
-): Promise<TrainInfo[]> => {
+export const getTrainCode = async (station: StationInfo): Promise<string[]> => {
   try {
     const { data } = await axios.get(
       // `https://www.jrkyushu-timetable.jp/cgi-bin/jr-k_time/tt_dep.cgi?c=${station.code}`,
       `https://www.jrkyushu-timetable.jp/cgi-bin/jr-k_time/tt_dep.cgi?c=28283`,
     );
     const $ = cheerio.load(data);
+    const codeList: string[] = [];
 
     const trains: TrainInfo[] = [];
     // 路線ごとにテーブル取得
     $('table.timetable > tbody > tr > td > table > tbody').each((i, e) => {
-      // console.log(e);
       const trs = $(e).children('tr');
-      console.log(`${i}番目のテーブル`);
-      // 路線名取得 (現状未使用)
-      console.log($(trs[0]).text().trim());
 
+      // 路線名取得 (現状未使用)
+      // console.log($(trs[0]).text().trim());
       for (let j = 1; j < trs.length; j++) {
-        const hour = $($(trs[j]).find('th')[0]).text().trim();
+        // 時刻 デバッグ用
+        // const hour = $($(trs[j]).find('th')[0]).text().trim();
 
         // 列車種別ごとのtdタグ取得 (特急/ローカル)
         const kinds = $(trs[j]).children('td');
-        console.log(`hour: ${hour}  kind: ${kinds.length}`);
         for (const kind of kinds) {
           // 種別ごとの列車情報取得
           const trains = $($(kind).find('td'));
@@ -67,29 +65,16 @@ export const scrapeTrainInfo = async (
           if (trains && !$(trains[0]).find('a').length) continue;
 
           for (const train of trains) {
-            const link: string = $($(train).find('a')[0])
-              .attr('href')!
-              .split('?')[0]
-              .split('.')[0];
-            const code: string = link.split('/')[4];
-            console.log(code);
+            const link: string = $($(train).find('a')[0]).attr('href')!;
+            const code: string = link.split('?')[0].split('.')[0].split('/')[4];
+            // console.log(code);
+            if (!codeList.find((e) => e === code)) codeList.push(code);
           }
         }
       }
-
-      // ほかのリンクも取得されるため.*線となるものを対象にする
-      // if (
-      //   lineName.includes('線') &&
-      //   lineName.length === lineName.indexOf('線') + 1
-      // ) {
-      //   const lineLink = $(e).attr('href') ?? '';
-      //   const lineCode = lineLink?.split('/').pop()?.replace('.html', '');
-
-      //   // trains.push({ name: lineName, code: lineCode });
-      // }
     });
 
-    return trains;
+    return codeList;
   } catch (e) {
     console.log(e);
     return [];
