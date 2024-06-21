@@ -63,8 +63,16 @@ export const scrapeTrainInfo = async (
         for (const kind of kinds) {
           // 種別ごとの列車情報取得
           const trains = $($(kind).find('td'));
-          console.log(trains.length);
+          // 列車が存在しない場合coutinue
+          if (trains && !$(trains[0]).find('a').length) continue;
+
           for (const train of trains) {
+            const link: string = $($(train).find('a')[0])
+              .attr('href')!
+              .split('?')[0]
+              .split('.')[0];
+            const code: string = link.split('/')[4];
+            console.log(code);
           }
         }
       }
