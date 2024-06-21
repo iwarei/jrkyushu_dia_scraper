@@ -46,15 +46,28 @@ export const scrapeTrainInfo = async (
     const $ = cheerio.load(data);
 
     const trains: TrainInfo[] = [];
-    let i = 0;
-    $('table.timetable table tbody').each((_, e) => {
+    // 路線ごとにテーブル取得
+    $('table.timetable > tbody > tr > td > table > tbody').each((i, e) => {
       // console.log(e);
-      const lineName = $(e)
-        .text()
-        .trim()
-        .replace(/\r?\n/g, '')
-        .replace(' ', '');
-      if (lineName) console.log(`lineName: ${lineName}`);
+      const trs = $(e).children('tr');
+      console.log(`${i}番目のテーブル`);
+      // 路線名取得 (現状未使用)
+      console.log($(trs[0]).text().trim());
+
+      for (let j = 1; j < trs.length; j++) {
+        const hour = $($(trs[j]).find('th')[0]).text().trim();
+
+        // 列車種別ごとのtdタグ取得 (特急/ローカル)
+        const kinds = $(trs[j]).children('td');
+        console.log(`hour: ${hour}  kind: ${kinds.length}`);
+        for (const kind of kinds) {
+          // 種別ごとの列車情報取得
+          const trains = $($(kind).find('td'));
+          console.log(trains.length);
+          for (const train of trains) {
+          }
+        }
+      }
 
       // ほかのリンクも取得されるため.*線となるものを対象にする
       // if (
@@ -66,8 +79,6 @@ export const scrapeTrainInfo = async (
 
       //   // trains.push({ name: lineName, code: lineCode });
       // }
-      console.log(i);
-      i++;
     });
 
     return trains;
