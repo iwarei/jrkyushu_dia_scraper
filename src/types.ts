@@ -39,7 +39,7 @@ export type TrainInfo = {
 
 export type StopStationInfo = {
   id?: number;
-  train_id: number;
+  train_id?: number;
   station_id: number;
   arrive_time?: string;
   departure_time?: string;

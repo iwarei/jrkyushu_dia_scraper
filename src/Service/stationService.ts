@@ -109,6 +109,12 @@ export const registStationInfo = async (
   return registered;
 };
 
+/**
+ * 路線・駅リレーション情報を登録する
+ * @param {lines: LineInfo[]} 登録する路線情報の配列
+ * @param {station: StationInfo} 登録する駅情報の
+ * @return {Promise<StationInfo[]>} 線名情報の配列
+ */
 const registLineStationRelation = async (
   lines: LineInfo[],
   station: StationInfo,
@@ -144,4 +150,34 @@ const registLineStationRelation = async (
   }
 
   return registered;
+};
+
+/**
+ * 駅IDまたは駅コードをもとに駅情報を取得する
+ * @param {id?: number} 検索する駅ID
+ * @param {code?: string} 検索する駅コード
+ * @return {Promise<StationInfo | null>} 駅情報
+ */
+export const searchStation = async ({
+  id,
+  code,
+}: {
+  id?: number;
+  code?: string;
+}): Promise<StationInfo | null> => {
+  if (!id && !code) {
+    console.error('searchStation: 駅または駅コードのいずれかは必須です。');
+    return null;
+  }
+  try {
+    return await prisma.station.findUnique({
+      where: {
+        id: id ?? undefined,
+        code: code ?? undefined,
+      },
+    });
+  } catch (e) {
+    console.error('searchStation: throw error', e);
+    return null;
+  }
 };
