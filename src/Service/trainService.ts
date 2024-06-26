@@ -109,6 +109,7 @@ export const scrapeTrainInfo = async (
     const $ = cheerio.load(data);
     // 1ページの列車数 (併結, 列番ひらがわりで2以上の場合がある)
     let trainCount = 0;
+    let debug_index = 0;
 
     $('body > table > tbody > tr > td > table > tbody').each(async (i, e) => {
       // 列車情報は最初のテーブル
@@ -118,11 +119,10 @@ export const scrapeTrainInfo = async (
         console.log(`trs.length: ${trs.length}`);
         for (const tr of trs) {
           const tds = $(tr).find('td');
-          const rowHeader = $(tds[0]).text();
+          const rowHeader = $(tds[0]).text().replace(/\r?\n/g, '');
           if (!trainCount) trainCount = tds.length - 1;
           const isStation = $(tds[0]).find('a').length >= 1;
           if (isStation) {
-            console.log('★');
             console.log(
               `駅名: ${rowHeader} コード: ${$($(tds[0]).find('a')[0]).attr('href')!.split("'")[1]}`,
             );
@@ -135,8 +135,13 @@ export const scrapeTrainInfo = async (
           // たぶんnullになることはないが、おまじない
           if (isStation && !station) return [];
           for (let j = 1; j < tds.length; j++) {
-            const text = $(tds[j]).text().replace(/\r?\n/g, '');
-            const index = j - 1;
+            const text = $(tds[j])
+              .text()
+              .replace(/\r?\n/g, '')
+              .replace(' ', '')
+              .replace(' ', '')
+              .trim();
+            let index = j - 1;
             // undefinedの場合は初期化
             if (!trainDetails[index]) {
               trainDetails[index] = {
@@ -183,7 +188,12 @@ export const scrapeTrainInfo = async (
                   break;
               }
             } else {
-              // 基本的に初期化が必要
+              // タイトルはcolSpan={2}だが時刻表は1列車2列
+              index = Math.trunc((j - 1) / 2);
+              // undefinedなら初期化しておく
+              if (!trainDetails[index].stopStations) {
+                trainDetails[index].stopStations = [];
+              }
               if (!trainDetails[index].stopStations[order]) {
                 trainDetails[index].stopStations[order] = {
                   station_id: 0,
@@ -193,16 +203,46 @@ export const scrapeTrainInfo = async (
               }
               trainDetails[index].stopStations[order].station_id =
                 station?.id ?? 0;
-              if (text === 'レ') {
-                trainDetails[index].stopStations[order].passing_flag = true;
-              } else {
-                // 着発時刻取得処理
-              }
-              // のりば取得の考慮も要
+              if (j % 2) {
+                // 奇数列目は着発時刻
+                if (text === 'レ') {
+                  trainDetails[index].stopStations[order].passing_flag = true;
+                } else if (!text || text === '||') {
+                  // 列番ひらがわりの際
+                } else {
+                  // 着時刻のみ/発時刻のみ/着発時刻の3パターンある
+                  const tmp = text;
+                  if (tmp.search('着') >= 0 && tmp.search('発') >= 0) {
+                    const times = tmp
+                      .replace('着', ',')
+                      .replace('発', '')
+                      .replace(' ', '')
+                      .split(',');
 
-              console.log('★');
-              console.log(text);
+                    trainDetails[index].stopStations[order].arrive_time =
+                      times[0].trim();
+                    trainDetails[index].stopStations[order].departure_time =
+                      times[1].trim();
+                  } else if (tmp.search('発') >= 0) {
+                    trainDetails[index].stopStations[order].departure_time = tmp
+                      .replace('発', '')
+                      .trim();
+                  } else {
+                    trainDetails[index].stopStations[order].arrive_time = tmp
+                      .replace('着', '')
+                      .trim();
+                  }
+                }
+              } else if (!(j % 2) && text) {
+                // 偶数列目はのりば
+                trainDetails[index].stopStations[order].platform = text;
+              }
+              debug_index = index;
             }
+          }
+          if (isStation) {
+            console.log(trainDetails[debug_index].stopStations[order]);
+            order++;
           }
         }
       }
