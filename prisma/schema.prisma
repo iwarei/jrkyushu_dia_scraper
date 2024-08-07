@@ -65,7 +65,7 @@ model TrainInfo {
   @@map("train_infos")
 }
 
-model TrainStopStaton {
+model TrainStopStation {
   id              Int       @id @default(autoincrement())
   train_id        Int
   station_id      Int
